@@ -67,6 +67,7 @@ def get_race_telemetry(session, session_type='R'):
     global_t_min = None
     global_t_max = None
     
+    max_lap_number = 0
 
     # 1. Get all of the drivers telemetry data
     for driver_no in drivers:
@@ -77,6 +78,9 @@ def get_race_telemetry(session, session_type='R'):
         laps_driver = session.laps.pick_drivers(driver_no)
         if laps_driver.empty:
             continue
+
+        if not laps_driver.empty:
+            max_lap_number = max(max_lap_number, laps_driver.LapNumber.max())
 
         t_all = []
         x_all = []
@@ -318,6 +322,7 @@ def get_race_telemetry(session, session_type='R'):
             "frames": frames,
             "driver_colors": get_driver_colors(session),
             "track_statuses": formatted_track_statuses,
+            "total_laps": int(max_lap_number),
         }, f, indent=2)
 
     print("Saved Successfully!")
@@ -326,4 +331,5 @@ def get_race_telemetry(session, session_type='R'):
         "frames": frames,
         "driver_colors": get_driver_colors(session),
         "track_statuses": formatted_track_statuses,
+        "total_laps": int(max_lap_number),
     }

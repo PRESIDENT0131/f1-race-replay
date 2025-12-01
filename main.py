@@ -27,7 +27,8 @@ def main(year=None, round_number=None, playback_speed=1, session_type='R'):
     drivers=drivers,
     playback_speed=1.0,
     driver_colors=race_telemetry['driver_colors'],
-    title=f"{session.event['EventName']} - {'Sprint' if session_type == 'S' else 'Race'}"
+    title=f"{session.event['EventName']} - {'Sprint' if session_type == 'S' else 'Race'}",
+    total_laps=race_telemetry['total_laps'],
   )
 
 if __name__ == "__main__":

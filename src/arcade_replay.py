@@ -41,7 +41,7 @@ def build_track_from_example_lap(example_lap, track_width=200):
 
 class F1ReplayWindow(arcade.Window):
     def __init__(self, frames, track_statuses, example_lap, drivers, title,
-                 playback_speed=1.0, driver_colors=None):
+                 playback_speed=1.0, driver_colors=None, total_laps=None):
         # Set resizable to True so the user can adjust mid-sim
         super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, title, resizable=True)
 
@@ -54,6 +54,7 @@ class F1ReplayWindow(arcade.Window):
         self.frame_index = 0.0  # use float for fractional-frame accumulation
         self.paused = False
         self._tyre_textures = {}
+        self.total_laps = total_laps
 
         # Import the tyre textures from the images/tyres folder (all files)
         tyres_folder = os.path.join("images", "tyres")
@@ -216,10 +217,15 @@ class F1ReplayWindow(arcade.Window):
         seconds = int(t % 60)
         time_str = f"{hours:02}:{minutes:02}:{seconds:02}"
 
-        # Draw HUD - Top Left
-        arcade.Text(f"Lap: {leader_lap}", 
-                         20, self.height - 40, 
-                         arcade.color.WHITE, 24, anchor_y="top").draw()
+        # Format Lap String 
+        lap_str = f"Lap: {leader_lap}"
+        if self.total_laps is not None:
+            lap_str += f"/{self.total_laps}"
+
+        # Draw HUD - Top Left                         
+        arcade.Text(lap_str,
+                          20, self.height - 40, 
+                          arcade.color.WHITE, 24, anchor_y="top").draw()
         
         arcade.Text(f"Race Time: {time_str} (x{self.playback_speed})", 
                          20, self.height - 80, 
@@ -465,7 +471,8 @@ class F1ReplayWindow(arcade.Window):
         else:
             self.selected_driver = new_selection
 
-def run_arcade_replay(frames, track_statuses, example_lap, drivers, title, playback_speed=1.0, driver_colors=None):
+def run_arcade_replay(frames, track_statuses, example_lap, drivers, title,
+                      playback_speed=1.0, driver_colors=None, total_laps=None):
     window = F1ReplayWindow(
         frames=frames,
         track_statuses=track_statuses,
@@ -473,6 +480,7 @@ def run_arcade_replay(frames, track_statuses, example_lap, drivers, title, playb
         drivers=drivers,
         playback_speed=playback_speed,
         driver_colors=driver_colors,
-        title=title
+        title=title,
+        total_laps=total_laps
     )
     arcade.run()
