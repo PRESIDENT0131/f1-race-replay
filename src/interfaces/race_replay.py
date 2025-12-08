@@ -25,7 +25,6 @@ class F1RaceReplayWindow(arcade.Window):
         self.driver_colors = driver_colors or {}
         self.frame_index = 0.0  # use float for fractional-frame accumulation
         self.paused = False
-        self._tyre_textures = {}
         self.total_laps = total_laps
         self.has_weather = any("weather" in frame for frame in frames) if frames else False
 
@@ -43,15 +42,6 @@ class F1RaceReplayWindow(arcade.Window):
         self.weather_comp = WeatherComponent(left=20, top_offset=170)
         self.legend_comp = LegendComponent(x=max(12, self.left_ui_margin - 320))
         self.driver_info_comp = DriverInfoComponent(left=20, width=300)
-
-        # Import the tyre textures from the images/tyres folder (all files)
-        tyres_folder = os.path.join("images", "tyres")
-        if os.path.exists(tyres_folder):
-            for filename in os.listdir(tyres_folder):
-                if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
-                    texture_name = os.path.splitext(filename)[0]
-                    texture_path = os.path.join(tyres_folder, filename)
-                    self._tyre_textures[texture_name] = arcade.load_texture(texture_path)
 
         # Build track geometry (Raw World Coordinates)
         (self.plot_x_ref, self.plot_y_ref,

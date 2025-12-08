@@ -2,6 +2,7 @@ import arcade
 from typing import List, Tuple, Optional
 from typing import Sequence, Optional, Tuple
 import numpy as np
+import os
 
 def _format_wind_direction(degrees: Optional[float]) -> str:
   if degrees is None:
@@ -77,6 +78,16 @@ class LeaderboardComponent(BaseComponent):
         self.rects = []    # clickable rects per entry
         self.selected = None
         self.row_height = 25
+        self._tyre_textures = {}
+        # Import the tyre textures from the images/tyres folder (all files)
+        tyres_folder = os.path.join("images", "tyres")
+        if os.path.exists(tyres_folder):
+            for filename in os.listdir(tyres_folder):
+                if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+                    texture_name = os.path.splitext(filename)[0]
+                    texture_path = os.path.join(tyres_folder, filename)
+                    self._tyre_textures[texture_name] = arcade.load_texture(texture_path)
+
     def set_entries(self, entries: List[Tuple[str, Tuple[int,int,int], dict, float]]):
         # entries sorted as expected
         self.entries = entries
@@ -99,6 +110,26 @@ class LeaderboardComponent(BaseComponent):
                 text_color = color
             text = f"{current_pos}. {code}" if pos.get("rel_dist",0) != 1 else f"{current_pos}. {code}   OUT"
             arcade.Text(text, left_x, top_y, text_color, 16, anchor_x="left", anchor_y="top").draw()
+
+             # Tyre Icons
+            tyre_texture = self._tyre_textures.get(str(pos.get("tyre", "?")).upper())
+            if tyre_texture:
+                # position tyre icon inside the leaderboard area so it doesn't collide with track
+                tyre_icon_x = left_x + self.width - 10
+                tyre_icon_y = top_y - 12
+                icon_size = 16
+
+                rect = arcade.XYWH(tyre_icon_x, tyre_icon_y, icon_size, icon_size)
+
+                # Draw the textured rect
+                arcade.draw_texture_rect(
+                    rect=rect,
+                    texture=tyre_texture,
+                    angle=0,
+                    alpha=255
+                )
+
+
     def on_mouse_press(self, window, x: float, y: float, button: int, modifiers: int):
         for code, left, bottom, right, top in self.rects:
             if left <= x <= right and bottom <= y <= top:
