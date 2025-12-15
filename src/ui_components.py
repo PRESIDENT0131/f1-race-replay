@@ -608,6 +608,51 @@ class RaceProgressBarComponent(BaseComponent):
         arcade.draw_rect_filled(segment_rect, color)
         
     def _draw_tooltip(self, window, event: dict):
+        event_type = event.get("type", "")
+        label = event.get("label", "")
+        lap = event.get("lap", "")
+        
+        # Build tooltip text
+        type_names = {
+            self.EVENT_DNF: "DNF",
+            self.EVENT_YELLOW_FLAG: "Yellow Flag",
+            self.EVENT_RED_FLAG: "Red Flag",
+            self.EVENT_SAFETY_CAR: "Safety Car",
+            self.EVENT_VSC: "Virtual SC",
+        }
+        
+        tooltip_text = type_names.get(event_type, "Event")
+        if label:
+            tooltip_text = f"{tooltip_text}: {label}"
+        if lap:
+            tooltip_text = f"{tooltip_text} (Lap {lap})"
+            
+        # Calculate position
+        event_x = self._frame_to_x(event.get("frame", 0))
+        tooltip_x = min(max(event_x, 100), window.width - 100)
+        tooltip_y = self.bottom + self.height + self.marker_height + 20
+        
+        # Draw tooltip background
+        padding = 8
+        text_obj = arcade.Text(tooltip_text, 0, 0, (255, 255, 255), 12)
+        text_width = text_obj.content_width
+        
+        bg_rect = arcade.XYWH(
+            tooltip_x,
+            tooltip_y,
+            text_width + padding * 2,
+            20
+        )
+        arcade.draw_rect_filled(bg_rect, (40, 40, 40, 230))
+        arcade.draw_rect_outline(bg_rect, (100, 100, 100), 1)
+        
+        # Draw text
+        arcade.Text(
+            tooltip_text,
+            tooltip_x, tooltip_y,
+            (255, 255, 255), 12,
+            anchor_x="center", anchor_y="center"
+        ).draw()
 # Build track geometry from example lap telemetry
 
 def build_track_from_example_lap(example_lap, track_width=200):
