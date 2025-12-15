@@ -557,7 +557,36 @@ class RaceProgressBarComponent(BaseComponent):
         )
         arcade.draw_rect_filled(bg_rect, self.COLORS["background"])
         arcade.draw_rect_outline(bg_rect, self.COLORS["progress_border"], 2)
+    def _draw_event_marker(self, event: dict, x: float, center_y: float):
+        """Draw a single event marker based on type."""
+        event_type = event.get("type", "")
+        marker_top = self.bottom + self.height + self.marker_height
+        marker_bottom = self.bottom + self.height
         
+        if event_type == self.EVENT_DNF:
+            # Draw red X marker above the bar
+            size = 6
+            color = self.COLORS["dnf"]
+            y = marker_top - size
+            arcade.draw_line(x - size, y - size, x + size, y + size, color, 2)
+            arcade.draw_line(x - size, y + size, x + size, y - size, color, 2)
+            
+        elif event_type == self.EVENT_YELLOW_FLAG:
+            # Draw yellow flag indicator on the bar
+            self._draw_flag_segment(event, self.COLORS["yellow_flag"])
+            
+        elif event_type == self.EVENT_RED_FLAG:
+            # Draw red flag indicator on the bar
+            self._draw_flag_segment(event, self.COLORS["red_flag"])
+            
+        elif event_type == self.EVENT_SAFETY_CAR:
+            # Draw orange segment for safety car
+            self._draw_flag_segment(event, self.COLORS["safety_car"])
+            
+        elif event_type == self.EVENT_VSC:
+            # Draw amber segment for VSC
+            self._draw_flag_segment(event, self.COLORS["vsc"])
+            
 # Build track geometry from example lap telemetry
 
 def build_track_from_example_lap(example_lap, track_width=200):
