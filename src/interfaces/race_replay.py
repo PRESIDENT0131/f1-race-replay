@@ -8,6 +8,7 @@ from src.ui_components import (
     LegendComponent, 
     DriverInfoComponent, 
     RaceProgressBarComponent,
+    RaceControlsComponent,
     extract_race_events,
     build_track_from_example_lap
 )
@@ -57,6 +58,12 @@ class F1RaceReplayWindow(arcade.Window):
             bottom=30,
             height=24,
             marker_height=16
+        )
+
+        # Race control buttons component
+        self.race_controls_comp = RaceControlsComponent(
+            center_x=self.width // 2,
+            center_y=100
         )
         
         # Extract race events for the progress bar
@@ -212,7 +219,7 @@ class F1RaceReplayWindow(arcade.Window):
         self.update_scaling(width, height)
         # notify components
         self.leaderboard_comp.x = max(20, self.width - self.right_ui_margin + 12)
-        for c in (self.leaderboard_comp, self.weather_comp, self.legend_comp, self.driver_info_comp, self.progress_bar_comp):
+        for c in (self.leaderboard_comp, self.weather_comp, self.legend_comp, self.driver_info_comp, self.progress_bar_comp, self.race_controls_comp):
             c.on_resize(self)
 
     def world_to_screen(self, x, y):
@@ -410,6 +417,12 @@ class F1RaceReplayWindow(arcade.Window):
         
         # Race Progress Bar with event markers (DNF, flags, leader changes)
         self.progress_bar_comp.draw(self)
+        
+        # Race playback control buttons
+        self.race_controls_comp.draw(self)
+        
+        # Draw tooltips and overlays on top of everything
+        self.progress_bar_comp.draw_overlays(self)
                     
     def on_update(self, delta_time: float):
         if self.paused:
@@ -445,6 +458,8 @@ class F1RaceReplayWindow(arcade.Window):
 
     def on_mouse_press(self, x: float, y: float, button: int, modifiers: int):
         # forward to components; stop at first that handled it
+        if self.race_controls_comp.on_mouse_press(self, x, y, button, modifiers):
+            return
         if self.progress_bar_comp.on_mouse_press(self, x, y, button, modifiers):
             return
         if self.leaderboard_comp.on_mouse_press(self, x, y, button, modifiers):
@@ -453,5 +468,6 @@ class F1RaceReplayWindow(arcade.Window):
         self.selected_driver = None
         
     def on_mouse_motion(self, x: float, y: float, dx: float, dy: float):
-        """Handle mouse motion for hover effects on progress bar."""
+        """Handle mouse motion for hover effects on progress bar and controls."""
         self.progress_bar_comp.on_mouse_motion(self, x, y, dx, dy)
+        self.race_controls_comp.on_mouse_motion(self, x, y, dx, dy)
