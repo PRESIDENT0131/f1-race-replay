@@ -10,7 +10,7 @@ import numpy as np
 import pandas as pd
 
 from src.lib.settings import get_settings
-from src.lib.time import format_time, parse_time_string
+from src.lib.time import parse_time_string
 from src.lib.tyres import get_tyre_compound_int
 
 
