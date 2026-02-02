@@ -302,7 +302,6 @@ class LeaderboardComponent(BaseComponent):
         if not self.entries:
             return
 
-        REFERENCE_SPEED_MS = 55.56
         leader_progress_val = self.entries[0][3]
 
         for idx, (code, _, pos, progress_m) in enumerate(self.entries):
@@ -310,7 +309,7 @@ class LeaderboardComponent(BaseComponent):
             try:
                 raw_to_leader = abs(leader_progress_val - (progress_m or 0.0))
                 dist_to_leader = raw_to_leader / 10.0
-                time_to_leader = dist_to_leader / REFERENCE_SPEED_MS
+                time_to_leader = dist_to_leader / 55.56
                 self.computed_gaps[code] = 0.0 if idx == 0 else time_to_leader
             except Exception:
                 self.computed_gaps[code] = None
@@ -322,7 +321,7 @@ class LeaderboardComponent(BaseComponent):
                     code_ahead, _, _, progress_ahead = self.entries[idx - 1]
                     raw = abs((progress_m or 0.0) - (progress_ahead or 0.0))
                     dist_m = raw / 10.0
-                    time_s = dist_m / REFERENCE_SPEED_MS
+                    time_s = dist_m / 55.56
                     ahead_info = (code_ahead, dist_m, time_s)
             except Exception:
                 ahead_info = None
