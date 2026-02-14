@@ -10,7 +10,7 @@ import os
 import subprocess
 import tempfile
 import uuid
-from src.f1_data import get_race_weekends_by_year, load_session
+from src.f1_data import get_race_weekends_by_year, get_race_weekends_by_place, get_all_unique_race_names, load_session
 from src.gui.settings_dialog import SettingsDialog
 
 
@@ -88,6 +88,19 @@ class RaceSelectionWindow(QMainWindow):
         year_layout.addWidget(self.year_combo)
         main_layout.addLayout(year_layout)
 
+        #Race Selection
+        place_layout=QHBoxLayout()
+        place_label=QLabel("Select Race:")
+        self.place_combo=QComboBox()
+        self.place_combo.addItem("All Races")
+        self.place_combo.addItems(get_all_unique_race_names())
+        self.place_combo.currentTextChanged.connect(self.load_by_place)
+
+
+        place_layout.addWidget(place_label)
+        place_layout.addWidget(self.place_combo)
+        main_layout.addLayout(place_layout)
+
         # Main content: left = schedule, right = session list
         content_layout = QHBoxLayout()
 
@@ -131,6 +144,7 @@ class RaceSelectionWindow(QMainWindow):
     def load_schedule(self, year):
         if self.loading_session:
             return
+        
         self.loading_session = True
         self.schedule_tree.clear()
         # hide sessions panel while loading / when nothing selected
@@ -142,6 +156,23 @@ class RaceSelectionWindow(QMainWindow):
         self.worker.result.connect(self.populate_schedule)
         self.worker.error.connect(self.show_error)
         self.worker.start()
+
+    def load_by_place(self,race_name):
+        if race_name=="All Races":
+            self.year_combo.setEnabled(True)
+            self.load_schedule(self.year_combo.currentText())
+            return
+        
+        #Set year combo to default and disable it
+        self.year_combo.blockSignals(True)
+        self.year_combo.setCurrentIndex(-1)
+        self.year_combo.blockSignals(False)
+
+        self.schedule_tree.clear()
+        
+        events=get_race_weekends_by_place(race_name)
+        self.populate_schedule(events)
+
     def populate_schedule(self, events):
         for event in events:
             # Ensure all columns are strings (QTreeWidgetItem expects text)
@@ -200,7 +231,7 @@ class RaceSelectionWindow(QMainWindow):
         Qt UI remains responsive.
         """
         try:
-            year = int(self.year_combo.currentText())
+            year = ev.get("year") or int(self.year_combo.currentText())
         except Exception:
             year = None
 
