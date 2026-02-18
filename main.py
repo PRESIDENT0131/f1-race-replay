@@ -1,5 +1,5 @@
 from src.f1_data import get_race_telemetry, enable_cache, get_circuit_rotation, load_session, get_quali_telemetry, list_rounds, list_sprints
-from src.run_session import run_arcade_replay, launch_telemetry_viewer, launch_insights_menu
+from src.run_session import run_arcade_replay, launch_insights_menu
 from src.interfaces.qualifying import run_qualifying_replay
 import sys
 from src.cli.race_selection import cli_load
